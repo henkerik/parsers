@@ -1,6 +1,6 @@
 package nl.henkerikvanderhoek.parser
 
-case class Parser[+A](parse: String => List[(A,String)]) {
+case class Parser[A](parse: String => List[(A,String)]) {
   def flatMap[B](f: A => Parser[B]):Parser[B] =
     Parser { inp => parse(inp).map { case (a,rem) => f(a).parse(rem) }.flatten }
 
@@ -13,7 +13,7 @@ case class Parser[+A](parse: String => List[(A,String)]) {
   def as[B](b: B):Parser[B] =
     map { Function.const(b) }
 
-  def choice[B >: A](p: => Parser[B]):Parser[B] =
+  def choice(p: => Parser[A]):Parser[A] =
     Parser { inp => parse(inp) ++ p.parse(inp) }
 
   def run(inp: => String):List[(A,String)] =
